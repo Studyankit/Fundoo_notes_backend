@@ -7,31 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-
-class NoteList(APIView):
-    """
-    List all Notes, or create a new Note.
-    """
-
-    def get(self, request, pk=None):
-        try:
-            Notes = Note.objects.filter(user__id=request.data.get('user'))
-            serializer = NoteSerializer(Notes, data=request.data)
-            logging.info(request.data)
-            return Response(serializer.data, status=200)
-
-        except Exception as e:
-            logging.exception('Data not found', e)
-            return Response(status=404)
-
-    def post(self, request):
-        try:
-            serializer = NoteSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            return Response(serializer.data, status=200)
-        except Exception as e:
-            logging.exception('Data entered not correct', e)
-            return Response(status=404)
+logger = logging.getLogger(__name__)
 
 
 class NoteDetail(APIView):
@@ -55,15 +31,22 @@ class NoteDetail(APIView):
         List of notes from database
         """
         try:
-            Notes = self._get_object(pk=pk)
-            # Notes = Note.objects.filter(pk=pk)
-            serializer = NoteSerializer(Notes, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            logging.info(request.data)
-            return Response(serializer.data, status=200)
+            # Notes = self._get_object(pk=pk)
+            # notes = Note.objects.get(pk=pk)  # filter.first() = get()
+            if request.data.get("user"):
+                notes = Note.objects.filter(user__id=request.data.get("user"))
+                serializer = NoteSerializer(notes, many=True)
+                logger.info(serializer.data)
+                return Response(serializer.data, status=200)
+            else:
+                note = Note.objects.get(pk=pk)
+                serializer = NoteSerializer(note)
+                logger.info(serializer.data)
+                return Response(serializer.data, status=200)
 
         except Exception as e:
-            logging.exception('Data not found', e)
+            print(e)
+            logger.exception('Data not found', e)
             return Response(status=404)
 
     def post(self, request, pk=None):
@@ -76,7 +59,7 @@ class NoteDetail(APIView):
             serializer.save()
             return Response(serializer.data, status=200)
         except Exception as e:
-            logging.exception('Data entered not correct', e)
+            logger.exception('Data entered not correct', e)
             return Response(status=404)
 
     def put(self, request, pk):
@@ -90,7 +73,7 @@ class NoteDetail(APIView):
             serializer.save()
             return Response(serializer.data, status=200)
         except Exception as e:
-            logging.exception('Data entered not correct', e)
+            logger.exception('Data entered not correct', e)
             return Response(status=404)
 
     def delete(self, request, pk):
@@ -102,5 +85,5 @@ class NoteDetail(APIView):
             note.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            logging.exception('Data not able to delete', e)
+            logger.exception('Data not able to delete', e)
             return Response(status=404)
