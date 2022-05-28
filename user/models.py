@@ -7,5 +7,6 @@ from django.db import models
 class User(AbstractUser):
     date_of_birth = models.DateField(null=True)
     email = models.EmailField(max_length=100, unique=True)
+    location = models.CharField(max_length=100, null=True)
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    # REQUIRED_FIELDS = ['email']

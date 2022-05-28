@@ -33,16 +33,10 @@ class NoteDetail(APIView):
         try:
             # Notes = self._get_object(pk=pk)
             # notes = Note.objects.get(pk=pk)  # filter.first() = get()
-            if request.data.get("user"):
-                notes = Note.objects.filter(user__id=request.data.get("user"))
-                serializer = NoteSerializer(notes, many=True)
-                logger.info(serializer.data)
-                return Response(serializer.data, status=200)
-            else:
-                note = Note.objects.get(pk=pk)
-                serializer = NoteSerializer(note)
-                logger.info(serializer.data)
-                return Response(serializer.data, status=200)
+            notes = Note.objects.filter(user__id=request.data.get("user"))
+            serializer = NoteSerializer(notes, many=True)
+            logger.info(serializer.data)
+            return Response({"data": serializer.data}, status=200)
 
         except Exception as e:
             print(e)

@@ -3,6 +3,8 @@ import json
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
+from rest_framework import serializers
+from user.serializers import UserSerializer
 from rest_framework.response import Response
 # Create your views here.
 from user.models import User
@@ -17,16 +19,16 @@ class UserModel(APIView):
         :return: Json response with status code
         """
         try:
-            data = json.loads(request.body)
-            register_user = User.objects.create_user(username=data.get("username"), email=data.get("email"))
-            authorize_user = authenticate(username=data.get('username'), email=data.get('email'))
+            serializer = UserSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return JsonResponse({
                 'message': 'User added successfully',
                 'response': 200
             })
         except Exception as e:
             return JsonResponse({
-                'message': 'User not there or enter proper registration details',
+                'message': 'User , enter proper registration details',
                 'response': 404,
             })
 
@@ -37,12 +39,12 @@ class UserModel(APIView):
         :return: Json response with status code
         """
         try:
-            data = json.loads(request.body)
-            user_check_login = User.objects.filter(username=data.get("username"), email=data.get("email"))
+            user = User.objects.get(username=request.data.get("username"))
+            serializer = UserSerializer(user, many=True)
             return JsonResponse({
                 'message': 'User already exists',
                 'response': 200,
-                'data': user_check_login.username
+                'data': user.username
             })
         except Exception:
             return JsonResponse({
