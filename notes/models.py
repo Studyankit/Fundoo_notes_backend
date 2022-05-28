@@ -1,13 +1,11 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from user.models import User
 
 
 # Create your models here.
 
-class UserProfile(models.Model):
-    user_name = models.CharField(max_length=50, unique=True) # make it unique field
-    email = models.EmailField(max_length=100, unique=True)
-    password = models.CharField(max_length=100, null=True)
-    phone_no = models.BigIntegerField(null=True)
-    location = models.CharField(max_length=100, null=True)
-
+class Note(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    # note_id = models.IntegerField(primary_key=True, default=0)
+    user = models.ForeignKey('user.User', on_delete=models.CASCADE)  # User = 'user.User'
