@@ -31,19 +31,16 @@ class NoteDetail(APIView):
         List of notes from database
         """
         try:
-            # Notes = self._get_object(pk=pk)
-            # notes = Note.objects.get(pk=pk)  # filter.first() = get()
             notes = Note.objects.filter(user__id=request.data.get("user"))
             serializer = NoteSerializer(notes, many=True)
             logger.info(serializer.data)
-            return Response({"data": serializer.data}, status=200)
+            return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            print(e)
             logger.exception('Data not found', e)
-            return Response(status=404)
+            return Response({'message': 'Data not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request, pk=None):
+    def post(self, request):
         """
         Add a new note
         """
@@ -51,10 +48,10 @@ class NoteDetail(APIView):
             serializer = NoteSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.exception('Data entered not correct', e)
-            return Response(status=404)
+            return Response({'message': 'Data not found'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     def put(self, request, pk):
         """
@@ -65,10 +62,10 @@ class NoteDetail(APIView):
             serializer = NoteSerializer(note, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=200)
+            return Response({'message': serializer.data, 'data': serializer.data}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.exception('Data entered not correct', e)
-            return Response(status=404)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         """
@@ -77,7 +74,7 @@ class NoteDetail(APIView):
         try:
             note = self._get_object(pk)
             note.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Note deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             logger.exception('Data not able to delete', e)
-            return Response(status=404)
+            return Response(status=status.HTTP_404_NOT_FOUND)
