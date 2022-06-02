@@ -20,8 +20,6 @@ class TestLoginAPI:
 
         user = django_user_model.objects.create_user(username='Ankit', password='7777')
 
-        user.save()
-
         url = reverse('login')
 
         # Login successful
@@ -40,7 +38,6 @@ class TestLoginAPI:
     def test_response_as_login_failed(self, client, django_user_model):
         # Create user
         user = django_user_model.objects.create_user(username='Ankit', password='7777')
-        user.save()
         url = reverse('registration')
         # Login failed
         data = {'username': 'Ankit', 'password': '1234'}
@@ -52,8 +49,6 @@ class TestLoginAPI:
         # Create user
 
         user = django_user_model.objects.create_user(username='Ankit', password='7777')
-
-        user.save()
 
         url = reverse('registration')
 
@@ -69,7 +64,6 @@ class TestLoginAPI:
     def test_response_as_validation(self, client, django_user_model):
         # Create user
         user = django_user_model.objects.create_user(username='Ankit', password='7777')
-        user.save()
         url = reverse('login')
         # Validation error
         data = {'username': 'Ankit Ghosh', 'password': ''}
