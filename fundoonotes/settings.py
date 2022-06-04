@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import datetime
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 import fundoonotes
@@ -51,13 +52,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-# REST_FRAMEWORK = {
-#     # Use Django's standard `django.contrib.auth` permissions,
-#     # or allow read-only access for unauthenticated users.
-#     'DEFAULT_PERMISSION_CLASSES': [
-#     ]
-# }
 
 ROOT_URLCONF = 'fundoonotes.urls'
 
@@ -141,7 +135,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR/'logging.log'
+            'filename': BASE_DIR / 'logging.log'
         },
     },
     'loggers': {
@@ -154,5 +148,22 @@ LOGGING = {
 }
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+# JWT_AUTH = {
+#
+#     'JWT_VERIFY': True,
+#     'JWT_VERIFY_EXPIRATION': True,
+#     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
+#     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+#
+# }
 
+JWT_SECRET_KEY = "9u9d9cd0h89y823h29uu2u2i088iss"
+
+FROM_EMAIL = 'ankitghosh97@gmail.com'
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = FROM_EMAIL
+EMAIL_HOST_PASSWORD = "feedenxokjnjcbkb"
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

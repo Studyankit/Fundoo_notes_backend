@@ -1,5 +1,5 @@
 import logging
-
+import jwt
 from notes.models import Note
 from notes.serializers import NoteSerializer
 from django.http import Http404
