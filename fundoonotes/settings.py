@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-import datetime
+from datetime import datetime, timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 import fundoonotes
@@ -167,3 +167,5 @@ EMAIL_HOST_USER = FROM_EMAIL
 EMAIL_HOST_PASSWORD = "feedenxokjnjcbkb"
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+JWT_EXPIRING_TIME = datetime.utcnow() + timedelta(minutes=60)
