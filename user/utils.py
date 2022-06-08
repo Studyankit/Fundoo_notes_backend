@@ -16,7 +16,6 @@ class JWTEncodeDecode:
     @staticmethod
     def encode_data(payload):
         payload.update({"exp": settings.JWT_EXPIRING_TIME})
-        print(payload)
         token_encoded = jwt.encode(payload, settings.JWT_SECRET_KEY,
                                    algorithm="HS256")
         return token_encoded
@@ -27,21 +26,12 @@ class JWTEncodeDecode:
         return token_decode
 
 
-# def verify_token(function):
-#     def wrapper(self, request):
-#         # request.headers.get('token')
-#         token = request.META.get('HTTP_TOKEN')
-#         if not token:
-#             return Response({'message': 'Not Authorized'}, status=status.HTTP_400_BAD_REQUEST)
-#             # Getting user id from token
-#         user_id = User.objects.get('username')
-#         return function(self, request, user_id)
-#
-#     return wrapper
 
 def verify_token(function):
+    """
+    Token verification and authorization
+    """
     def wrapper(self, request, *args, **kwargs):
-        # print('=====', request.META.get('HTTP_AUTHORIZATION'))
         if 'HTTP_AUTHORIZATION' not in request.META:
             resp = JsonResponse(
                 {'message': 'Token not provided in the header'})
@@ -51,8 +41,8 @@ def verify_token(function):
         token = request.META.get("HTTP_AUTHORIZATION")
         _, jwt_token = token.split(' ')
         payload = JWTEncodeDecode.decode_data(token=jwt_token)
-        user = User.objects.get(username=payload.get('username'))
-        request.user = user
+        # user = User.objects.get(username=payload.get('username'))
+        request.data.update({'user': payload.get('id')})
 
         return function(self, request, *args, **kwargs)
 

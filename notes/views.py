@@ -6,6 +6,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from user.utils import verify_token
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class NoteDetail(APIView):
         except note_query.DoesNotExist:
             raise Http404
 
+    @verify_token
     def get(self, request, pk=None):
         """
         List of notes from database
@@ -40,6 +42,7 @@ class NoteDetail(APIView):
             logger.exception('Data not found', e)
             return Response({'message': 'Data not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    @verify_token
     def post(self, request):
         """
         Add a new note
@@ -48,11 +51,12 @@ class NoteDetail(APIView):
             serializer = NoteSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.exception('Data entered not correct', e)
             return Response({'message': 'Data not found'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
+    @verify_token
     def put(self, request, pk):
         """
         Add some data in note
@@ -67,6 +71,7 @@ class NoteDetail(APIView):
             logger.exception('Data entered not correct', e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    @verify_token
     def delete(self, request, pk):
         """
         Delete a note using its primary key

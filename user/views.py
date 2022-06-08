@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework import status
 
-from notes import serializers
 from user.serializers import UserSerializer
 from rest_framework.response import Response
 from django.conf import settings
@@ -28,9 +27,6 @@ class UserAPIView(APIView):
             serializer.save()
             user = User.objects.get(username=serializer.validated_data.get('username'))
             mail_subject = "Verification mail"
-
-            # token = jwt.encode({"id": user.id, 'username': user.username},
-            #                    settings.JWT_SECRET_KEY, algorithm="HS256")
             token = JWTEncodeDecode.encode_data(payload={'id': user.id, 'username': user.username})
             mail_message = "Click on this http://127.0.0.1:8000/verify/" + token
             print(mail_message)
@@ -50,10 +46,10 @@ class UserAPIView(APIView):
         :return: Json response with status code
         """
         try:
-            print(request.user)
-            user = User.objects.get(username=request.user.username) # authenticated user username
+            print(request.data)
+            # user = User.objects.get(username=request.data.get('username'))
+            user = User.objects.get(id=request.data.get('user'))
             serializer = UserSerializer(user)
-            # JWTEncodeDecode.verify_token(request)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_404_NOT_FOUND)
@@ -68,10 +64,7 @@ class LoginAPIView(APIView):
         try:
             user = authenticate(username=request.data.get('username'), password=request.data.get('password'))
             if user is not None:
-                # encoded_token = jwt.encode({"id": user.id, 'username': user.username}, settings.JWT_SECRET_KEY,
-                #                            algorithm="HS256")
                 token = JWTEncodeDecode.encode_data(payload={'id': user.id, 'username': user.username})
-                # serializer = UserSerializer(user)
                 payload = {'token': token}
                 return Response({'message': 'Login Successfully', 'data': payload})
             else:
@@ -89,7 +82,6 @@ class ValidateToken(APIView):
     def get(self, request, token):
 
         try:
-            # decode_token = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
             decode_token = JWTEncodeDecode.decode_data(token=token)
             user = User.objects.get(username=decode_token.get('username'))
             user.is_verify = True
