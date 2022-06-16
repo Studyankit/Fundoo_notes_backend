@@ -57,12 +57,12 @@ class NoteDetail(APIView):
             return Response({'message': 'Data not found'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @verify_token
-    def put(self, request, pk):
+    def put(self, request):
         """
         Add some data in note
         """
         try:
-            note = self._get_object(pk)
+            note = self._get_object(pk=request.data.get('id'))
             serializer = NoteSerializer(note, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
