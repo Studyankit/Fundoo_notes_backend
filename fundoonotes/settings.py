@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 from datetime import datetime, timedelta
+import redis
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 import fundoonotes
@@ -147,7 +148,6 @@ LOGGING = {
     },
 }
 
-
 # JWT_AUTH = {
 #
 #     'JWT_VERIFY': True,
@@ -169,3 +169,16 @@ EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 JWT_EXPIRING_TIME = datetime.utcnow() + timedelta(minutes=60)
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient"
+#         }
+#     }
+# }
+
+# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SESSION_CACHE_ALIAS = "default"

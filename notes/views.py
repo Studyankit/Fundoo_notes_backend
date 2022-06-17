@@ -1,5 +1,8 @@
 import logging
 import jwt
+import redis
+import json
+
 from notes.models import Note
 from notes.serializers import NoteSerializer
 from django.http import Http404
@@ -7,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from user.utils import verify_token
+from .redis import RedisFunction
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +37,16 @@ class NoteDetail(APIView):
         List of notes from database
         """
         try:
-            notes = Note.objects.filter(user__id=request.data.get("user"))
+            user_id = request.data.get("user")
+            notes = Note.objects.filter(user__id=user_id)
             serializer = NoteSerializer(notes, many=True)
-            logger.info(serializer.data)
-            return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+            RedisFunction.set_key(user_id, json.dumps(serializer.data))
+            data_fetch = RedisFunction.get_key(user_id)
+            return Response({"data": json.loads(data_fetch)}, status=status.HTTP_200_OK)
 
         except Exception as e:
             logger.exception('Data not found', e)
+            print(e)
             return Response({'message': 'Data not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @verify_token
@@ -48,12 +55,17 @@ class NoteDetail(APIView):
         Add a new note
         """
         try:
-            serializer = NoteSerializer(data=request.data)
+            user_id = request.data.get("user")
+            serializer = NoteSerializer(data=request.data) # serialzer.data
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
+            data_fetch = json.dumps(request.data)
+            RedisFunction.set_key(user_id, data_fetch)
+            data_fetch = RedisFunction.get_key(user_id)
+            return Response({'data': json.loads(data_fetch)}, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.exception('Data entered not correct', e)
+            print(e)
             return Response({'message': 'Data not found'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @verify_token

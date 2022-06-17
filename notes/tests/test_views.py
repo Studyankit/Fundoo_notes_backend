@@ -34,6 +34,9 @@ class TestNoteAPI:
 
     @pytest.mark.django_db
     def test_response_as_note_check(self, client, authentication_user):
+        """
+        Testing to get note api
+        """
         token, user_id = authentication_user
 
         url = reverse('new_note')
@@ -48,6 +51,9 @@ class TestNoteAPI:
 
     @pytest.mark.django_db
     def test_response_as_update_notes(self, client, authentication_user):
+        """
+        Testing to update or change note api
+        """
         token, user_id = authentication_user
 
         # new note
@@ -67,6 +73,9 @@ class TestNoteAPI:
 
     @pytest.mark.django_db
     def test_response_as_delete_notes(self, client, authentication_user):
+        """
+        Testing to delete note api
+        """
         token, user_id = authentication_user
         user = User.objects.get(pk=user_id)
 
