@@ -58,7 +58,7 @@ class RedisApi:
                 print(note_dict)
                 note_dict.pop(str(note.id))
                 print(note_dict)
-                self.add_note(user_id, note_dict)
+                self.redis_obj.set_key(user_id, note_dict)
             return None
 
         except Exception as e:

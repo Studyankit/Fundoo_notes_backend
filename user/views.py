@@ -11,6 +11,8 @@ from django.conf import settings
 from user.models import User
 from user.utils import JWTEncodeDecode
 from user.utils import verify_token
+from user.email import Email
+from .tasks import send_email_task
 
 
 class UserAPIView(APIView):
@@ -25,14 +27,11 @@ class UserAPIView(APIView):
             serializer = UserSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            user = User.objects.get(username=serializer.validated_data.get('username'))
-            mail_subject = "Verification mail"
-            token = JWTEncodeDecode.encode_data(payload={'id': user.id, 'username': user.username})
+            mail_subject = "Verification mail from Celery"
+            token = JWTEncodeDecode.encode_data(payload={'id': serializer.data.get('id'),
+                                                         'username': serializer.data.get('username')})
             mail_message = "Click on this http://127.0.0.1:8000/verify/" + token
-            print(mail_message)
-            send_mail(mail_subject, mail_message, settings.FROM_EMAIL,
-                      [user.email], fail_silently=False)
-            print(serializer.validated_data)
+            send_email_task.delay(serializer.data.get('email'), mail_subject, mail_message)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
