@@ -12,9 +12,26 @@ from user.models import User
 from user.utils import JWTEncodeDecode
 from user.utils import verify_token
 
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+
 
 class UserAPIView(APIView):
 
+    @swagger_auto_schema(
+        operation_summary="registration",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING, description='username'),
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='first_name'),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='last_name'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
+                'age': openapi.Schema(type=openapi.TYPE_INTEGER, description='age'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='email'),
+                'phone': openapi.Schema(type=openapi.TYPE_STRING, description='phone'),
+            }
+        ))
     def post(self, request):
         """
         Registration of new user by custom user model
@@ -38,6 +55,9 @@ class UserAPIView(APIView):
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(
+        operation_summary="display",
+    )
     @verify_token
     def get(self, request):
         """
@@ -60,6 +80,15 @@ class LoginAPIView(APIView):
     Logged user check method to see if user is in database
     """
 
+    @swagger_auto_schema(
+        operation_summary="login",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING, description='username'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
+            }
+        ))
     def post(self, request):
         try:
             user = authenticate(username=request.data.get('username'), password=request.data.get('password'))
@@ -78,7 +107,9 @@ class ValidateToken(APIView):
     """
     Validating the token if the user is valid or not
     """
-
+    @swagger_auto_schema(
+        operation_summary="get user"
+    )
     def get(self, request, token):
 
         try:

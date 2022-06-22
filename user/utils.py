@@ -39,8 +39,8 @@ def verify_token(function):
             logging.info('Token not provided in the header')
             return resp
         token = request.META.get("HTTP_AUTHORIZATION")
-        _, jwt_token = token.split(' ')
-        payload = JWTEncodeDecode.decode_data(token=jwt_token)
+        # _, jwt_token = token.split(' ')
+        payload = JWTEncodeDecode.decode_data(token=token)
         # user = User.objects.get(username=payload.get('username'))
         request.data.update({'user': payload.get('id')})
 
