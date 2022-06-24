@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'fundoonotes.middleware.NoteMiddleware'
 ]
 
 ROOT_URLCONF = 'fundoonotes.urls'
@@ -148,15 +149,6 @@ LOGGING = {
     },
 }
 
-
-# JWT_AUTH = {
-#
-#     'JWT_VERIFY': True,
-#     'JWT_VERIFY_EXPIRATION': True,
-#     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
-#     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-#
-# }
 
 JWT_SECRET_KEY = "9u9d9cd0h89y823h29uu2u2i088iss"
 

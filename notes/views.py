@@ -35,15 +35,18 @@ class NoteDetail(APIView):
         """
         List of notes from database
         """
-        try:
-            notes = Note.objects.filter(user__id=request.data.get("user"))
-            serializer = NoteSerializer(notes, many=True)
-            logger.info(serializer.data)
-            return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+        # try:
+        notes = Note.objects.filter(user__id=request.data.get("user"))
+        serializer = NoteSerializer(notes, many=True)
+        if pk:
+            notes = notes.get(pk=pk)
+            serializer = NoteSerializer(notes)
+        logger.info(serializer.data)
+        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            logger.exception('Data not found', e)
-            return Response({'message': 'Data not found'}, status=status.HTTP_404_NOT_FOUND)
+        # except Exception as e:
+        #     logger.exception('Data not found', e)
+        #     # return Response({'message': 'Data not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(operation_summary="New note",  request_body=NoteSerializer)
     @verify_token

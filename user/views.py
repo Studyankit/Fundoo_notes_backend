@@ -66,7 +66,6 @@ class UserAPIView(APIView):
         :return: Json response with status code
         """
         try:
-            print(request.data)
             # user = User.objects.get(username=request.data.get('username'))
             user = User.objects.get(id=request.data.get('user'))
             serializer = UserSerializer(user)
