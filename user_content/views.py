@@ -3,44 +3,43 @@ import logging
 
 from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect
-from rest_framework.views import APIView
+from django.views import View
 
 from user.models import User
-from user.serializers import UserSerializer
 
 
 def index(request):
-    return render(request, "index.html")
+    user = User.objects.get(id=2)
+    return render(request, "index.html", {'message': "Home Page", 'mdata': 'Home redirect', 'user_object': user})
 
 
-class UserRegistration(APIView):
+class UserRegistration(View):
 
     def post(self, request):
 
         try:
-            data = User.objects.create_user(username=request.data.get('username'),
-                                            password=request.data.get('password'))
-            print(data)
-            return render(request, 'register.html', {'data': request.data})
+            User.objects.create_user(username=request.POST.get('username'),
+                                     password=request.POST.get('password'), email=request.POST.get('email'),
+                                     location=request.POST.get('location'))
+            return redirect('login')
         except Exception as e:
             logging.error(e)
-            return render(request, 'register.html')
+            return render(request, 'register.html', {'m': str(e)})
 
     def get(self, request):
         return render(request, 'register.html')
 
 
-class UserLogin(APIView):
+class UserLogin(View):
 
     def post(self, request):
 
         try:
-            user = authenticate(username=request.data.get('username'), password=request.data.get('password'))
+            user = authenticate(request, username=request.POST.get('username'), password=request.POST.get('password'))
             if user is not None:
-                serializer = UserSerializer(user)
-                return render(request, 'login.html', {'message': 'Login Successfully', "data": serializer.data})
-            else:
-                return render(request, 'login.html', {'message': 'Login Unsuccessfull'})
+                request.user = user
+                return redirect('index')
+            return render(request, 'login.html', {'message': 'Login Unsuccessfull'})
 
         except Exception as e:
             return render(request, "login.html", {'message': str(e)})

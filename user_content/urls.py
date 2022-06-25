@@ -5,5 +5,5 @@ from user_content import views
 urlpatterns = [
     path('login', views.UserLogin.as_view(), name='login'),
     path('register', views.UserRegistration.as_view(), name='register'),
-    path('index', views.index, name='index')
+    path('', views.index, name='index')
 ]
