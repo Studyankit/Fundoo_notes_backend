@@ -39,5 +39,6 @@ urlpatterns = [
     path('', include('notes.urls')),
     path('', include('user.urls')),
     path('api-auth/', include('rest_framework.urls')),
-    path('', schema_view.with_ui(cache_timeout=0), name='schema-json')
+    path('', schema_view.with_ui(cache_timeout=0), name='schema-json'),
+    path('', include('user_raw_query.urls'))
 ]

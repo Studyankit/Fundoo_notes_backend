@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'notes',
     'user',
     'rest_framework',
-    'drf_yasg'
+    'drf_yasg',
+    'user_raw_query'
 ]
 
 MIDDLEWARE = [
