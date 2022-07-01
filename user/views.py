@@ -1,3 +1,5 @@
+import json
+
 import jwt
 import logging
 from django.core.mail import send_mail
@@ -14,6 +16,8 @@ from user.utils import verify_token
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+
+from .producer import RabitServer
 
 
 class UserAPIView(APIView):
@@ -42,14 +46,16 @@ class UserAPIView(APIView):
             serializer = UserSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            user = User.objects.get(username=serializer.validated_data.get('username'))
-            mail_subject = "Verification mail"
-            token = JWTEncodeDecode.encode_data(payload={'id': user.id, 'username': user.username})
-            mail_message = "Click on this http://127.0.0.1:8000/verify/" + token
-            print(mail_message)
-            send_mail(mail_subject, mail_message, settings.FROM_EMAIL,
-                      [user.email], fail_silently=False)
-            print(serializer.validated_data)
+            # user = User.objects.get(username=serializer.validated_data.get('username'))
+            # mail_subject = "Verification mail"
+            # token = JWTEncodeDecode.encode_data(payload={'id': user.id, 'username': user.username})
+            # mail_message = "Click on this http://127.0.0.1:8000/verify/" + token
+            # print(mail_message)
+            # send_mail(mail_subject, mail_message, settings.FROM_EMAIL,
+            #           [user.email], fail_silently=False)
+            # print(serializer.validated_data)
+            data = {'email': serializer.data.get('email'), 'id': serializer.data.get('id')}
+            RabitServer.send_mail_pika(data=data)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:

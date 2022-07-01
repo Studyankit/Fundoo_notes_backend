@@ -26,11 +26,11 @@ class JWTEncodeDecode:
         return token_decode
 
 
-
 def verify_token(function):
     """
     Token verification and authorization
     """
+
     def wrapper(self, request, *args, **kwargs):
         if 'HTTP_AUTHORIZATION' not in request.META:
             resp = JsonResponse(
