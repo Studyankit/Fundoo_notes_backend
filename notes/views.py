@@ -1,10 +1,12 @@
 import logging
 from notes.models import Note
-from notes.serializers import NoteSerializer
+from notes.serializers import NoteSerializer, ShareNoteSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+
+from user.models import User
 from user.utils import verify_token
 
 from drf_yasg import openapi
@@ -98,3 +100,38 @@ class NoteDetail(APIView):
         except Exception as e:
             logger.exception('Data not able to delete', e)
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class CollaboratorAPIView(APIView):
+    @swagger_auto_schema(operation_summary="Fetch Collaborator note")
+    @verify_token
+    def get(self, request):
+        """
+        get note of user
+        """
+        try:
+            user = User.objects.get(id=request.data['user'])
+            note = user.collaborator.all() | Note.objects.filter(user_id=request.data['user'])
+            print([i for i in note])
+            return Response({
+                "message": "user found", "data": ShareNoteSerializer(note, many=True).data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(operation_summary="Add Collaborator note")
+    @verify_token
+    def post(self, request):
+        try:
+            # note = Note.objects.get(pk=request.data.get('id'))
+            # user = User.objects.get(pk=request.data.get('collaborator'))
+            serializer = ShareNoteSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            # note.collaborator.add(user)
+            return Response({
+                "message": "user found", "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
