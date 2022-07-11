@@ -1,6 +1,6 @@
 import logging
-from notes.models import Note
-from notes.serializers import NoteSerializer, ShareNoteSerializer
+from notes.models import Note, Label
+from notes.serializers import NoteSerializer, ShareNoteSerializer, LabelSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,7 +8,7 @@ from rest_framework import status
 
 from user.models import User
 from user.utils import verify_token
-
+from django.db.models import Q
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
@@ -47,7 +47,7 @@ class NoteDetail(APIView):
             logger.exception('Data not found', e)
             return Response({'message': 'Data not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    @swagger_auto_schema(operation_summary="New note",  request_body=NoteSerializer)
+    @swagger_auto_schema(operation_summary="New note", request_body=NoteSerializer)
     @verify_token
     def post(self, request):
         """
@@ -63,13 +63,13 @@ class NoteDetail(APIView):
             return Response({'message': 'Data not found'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @swagger_auto_schema(operation_summary="Update notes", request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'id': openapi.Schema(type=openapi.TYPE_INTEGER, description="note_id"),
-                'title': openapi.Schema(type=openapi.TYPE_STRING, description="title"),
-                'description': openapi.Schema(type=openapi.TYPE_STRING, description="description")
-            }
-        ))
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'id': openapi.Schema(type=openapi.TYPE_INTEGER, description="note_id"),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description="title"),
+            'description': openapi.Schema(type=openapi.TYPE_STRING, description="description")
+        }
+    ))
     @verify_token
     def put(self, request):
         """
@@ -86,8 +86,8 @@ class NoteDetail(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(operation_summary="delete note", request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT, properties={
-                'id': openapi.Schema(type=openapi.TYPE_INTEGER, description="note_id")}))
+        type=openapi.TYPE_OBJECT, properties={
+            'id': openapi.Schema(type=openapi.TYPE_INTEGER, description="note_id")}))
     @verify_token
     def delete(self, request, pk):
         """
@@ -112,11 +112,11 @@ class CollaboratorAPIView(APIView):
         try:
             user = User.objects.get(id=request.data['user'])
             note = user.collaborator.all() | Note.objects.filter(user_id=request.data['user'])
-            print([i for i in note])
             return Response({
                 "message": "user found", "data": ShareNoteSerializer(note, many=True).data
             }, status=status.HTTP_200_OK)
         except Exception as e:
+            print(e)
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(operation_summary="Add Collaborator note")
@@ -134,4 +134,40 @@ class CollaboratorAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LabelAPIView(APIView):
+
+    @swagger_auto_schema(operation_summary="add Label")
+    @verify_token
+    def post(self, request):
+        """
+        Add Labels to note attribute colour
+        """
+        try:
+            serializer = LabelSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            print(serializer.data)
+            return Response({
+                "message": "label found", "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(operation_summary="Label fetch")
+    @verify_token
+    def get(self, request):
+        """
+        get note of user
+        """
+        try:
+            label = Label.objects.all()
+            return Response({
+                "message": "label found", "data": LabelSerializer(label, many=True).data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)

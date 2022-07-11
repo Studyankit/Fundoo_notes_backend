@@ -26,18 +26,16 @@ class JWTEncodeDecode:
         return token_decode
 
 
-
 def verify_token(function):
     """
     Token verification and authorization
     """
+
     def wrapper(self, request, *args, **kwargs):
         if 'HTTP_AUTHORIZATION' not in request.META:
-            resp = JsonResponse(
-                {'message': 'Token not provided in the header'})
-            resp.status_code = 400
             logging.info('Token not provided in the header')
-            return resp
+            return Response(
+                {'message': 'Token not provided in the header'}, status=401)
         token = request.META.get("HTTP_AUTHORIZATION")
         _, jwt_token = token.split(' ')
         payload = JWTEncodeDecode.decode_data(token=jwt_token)
