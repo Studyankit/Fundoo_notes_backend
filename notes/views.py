@@ -8,7 +8,6 @@ from rest_framework import status
 
 from user.models import User
 from user.utils import verify_token
-from django.db.models import Q
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
@@ -122,13 +121,13 @@ class CollaboratorAPIView(APIView):
     @swagger_auto_schema(operation_summary="Add Collaborator note")
     @verify_token
     def post(self, request):
+        """
+        Add a new note with label
+        """
         try:
-            # note = Note.objects.get(pk=request.data.get('id'))
-            # user = User.objects.get(pk=request.data.get('collaborator'))
             serializer = ShareNoteSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            # note.collaborator.add(user)
             return Response({
                 "message": "user found", "data": serializer.data
             }, status=status.HTTP_200_OK)
